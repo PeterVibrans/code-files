@@ -1,0 +1,27 @@
+import json
+import os
+
+
+def fix_json_file(json_path):
+    with open(json_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    # Remove backslashes from file names in images
+    for image in data.get('images', []):
+        image['file_name'] = image['file_name'].replace('\\', '/')
+
+    # Remove backslashes from annotations segmentations if present
+    for annotation in data.get('annotations', []):
+        if isinstance(annotation.get('segmentation'), dict):
+            counts = annotation['segmentation'].get('counts', '')
+            annotation['segmentation']['counts'] = counts.replace('\\', '/')
+
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+    print(f"Fixed JSON file: {json_path}")
+
+
+# Usage
+json_path = 'data/escasymptoms/coco/coco_annotations.json'
+fix_json_file(json_path)
